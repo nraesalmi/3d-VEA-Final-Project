@@ -1,0 +1,11 @@
+steps on how to import prefabs:
+
+1/ windows -> package manager -> install: "XR Plugin Management", "XR Interaction Toolkit" and "Starter asset" in smaples in "XR Interaction Toolkit"
+
+2/ Project Settings -> "XR Plugin Management" -> check "OpenXR" box -> openXR -> Enabled Interaction Profiles, pick "oculus Touch Controller Profile"
+
+3/ import the prefabs
+
+note:
+- for VR with animated hands, don't have to import anything else, it's in the package.
+- i'm using unity 2022.3.16f1, 3D (URP).

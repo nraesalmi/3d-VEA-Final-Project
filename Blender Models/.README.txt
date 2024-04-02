@@ -1,0 +1,3 @@
+forgot to take the lights and camera out of hand model
+
+also, reminder next time keep the ring on the hands, don't make a different file, easier to animate and control that way
