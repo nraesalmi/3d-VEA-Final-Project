@@ -3,12 +3,12 @@ using UnityEngine.XR.Interaction.Toolkit;
 
 public class EndCondition : MonoBehaviour
 {
-    public string importantTag = "Important"; // Tag for important objects
+    public string importantTag = "evidence"; // Tag for important objects
     public int requiredCount = 3; // Required number of important objects to trigger win condition
     public Transform teleportDestination; // Destination to teleport the player
+    public Transform playerTransform;
 
     private int itemCount = 0;
-    private Transform player;
     private bool winConditionMet = false;
 
     private void Update()
@@ -25,12 +25,14 @@ public class EndCondition : MonoBehaviour
             // Check if the interactable is grabbed
             if (interactable.isSelected)
             {
+                Debug.Log(interactable.isSelected);
                 // Check if the grabbed object has the important tag
                 GameObject grabbedObject = interactable.gameObject;
                 if (grabbedObject.CompareTag(importantTag))
                 {
                     itemCount++;
                     Debug.Log("Number of important objects grabbed: " + itemCount);
+                    grabbedObject.SetActive(false);
                 }
             }
         }
@@ -47,12 +49,13 @@ public class EndCondition : MonoBehaviour
     private void TeleportPlayer()
     {
         // Teleport the XR Rig to the destination
-        if (teleportDestination != null)
+        if (playerTransform != null && teleportDestination != null)
         {
-            // Calculate the offset to maintain the relative position of the XR Rig
-            Vector3 offset = teleportDestination.position - Camera.main.transform.position;
-            // Teleport the XR Rig to the destination
-            transform.position += offset;
+            // Calculate the offset to maintain the relative position of the player
+            Vector3 offset = teleportDestination.position - playerTransform.position;
+
+            // Teleport the player to the destination
+            playerTransform.position += offset;
         }
     }
 }
