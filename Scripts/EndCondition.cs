@@ -43,6 +43,7 @@ public class EndCondition : MonoBehaviour
             // Trigger win condition
             winConditionMet = true;
             TeleportPlayer();
+            Debug.Log("Has teleported");
         }
     }
 
@@ -51,11 +52,7 @@ public class EndCondition : MonoBehaviour
         // Teleport the XR Rig to the destination
         if (playerTransform != null && teleportDestination != null)
         {
-            // Calculate the offset to maintain the relative position of the player
-            Vector3 offset = teleportDestination.position - playerTransform.position;
-
-            // Teleport the player to the destination
-            playerTransform.position += offset;
+            playerTransform.position = teleportDestination.position;
         }
     }
 }
