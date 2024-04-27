@@ -4,23 +4,22 @@ using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
-public class EnemyAiTutorial : MonoBehaviour
+public class EnemyAi : MonoBehaviour
 {
     public NavMeshAgent agent;
     public Transform player;
     public Transform currentLocation;
     public LayerMask whatIsGround, whatIsPlayer;
+
+    //Enemy Stats
     public float health;
+    public float cooldown;
+    public float damage;
 
     //Patroling
     public Vector3 walkPoint;
     bool walkPointSet;
     public float walkPointRange;
-
-    //Attacking
-    public float timeBetweenAttacks;
-    bool alreadyAttacked;
-    public GameObject projectile;
 
     //States
     public float sightRange, attackRange;
@@ -30,8 +29,13 @@ public class EnemyAiTutorial : MonoBehaviour
     public float distantThreshold = 3.0f;
 
     private float timeOutOfSight = 0.0f;
-    private bool canSeePlayer = false;
     private bool hasTeleported = false;
+
+    private void Start()
+    {
+        player = GameObject.Find("Player").transform;
+        agent = GetComponent<NavMeshAgent>();
+    }
 
     private void Update()
     {
@@ -41,15 +45,14 @@ public class EnemyAiTutorial : MonoBehaviour
 
         if (playerInSightRange) {
             if (playerInAttackRange) {
-                AttackPlayer();
+                AttackPlayer(player.GetComponent<Player>());
             } else {
-                canSeePlayer = true;
                 timeOutOfSight = 0.0f;
                 ChasePlayer();
             } 
         } 
         else {
-            canSeePlayer = false;
+            Patroling();
             timeOutOfSight += Time.deltaTime;
 
             if (timeOutOfSight >= maxTimeOutOfSight)
@@ -58,12 +61,11 @@ public class EnemyAiTutorial : MonoBehaviour
                 timeOutOfSight = 0.0f; 
             }
         }
-
-        Patroling();
     }
 
     private void Patroling()
     {
+        Debug.Log("Patrolling");
         if (hasTeleported == true) {
             walkPointSet = false;
             hasTeleported = false;
@@ -103,41 +105,31 @@ public class EnemyAiTutorial : MonoBehaviour
     private void ChasePlayer()
     {
         agent.SetDestination(player.position);
+        Debug.Log("Chasing player");
     }
 
-    private void AttackPlayer()
+    private void AttackPlayer(Player player)
     {
-        //Make sure enemy doesn't move
-        agent.SetDestination(transform.position);
+        player.TakeDamage(damage);
 
-        transform.LookAt(player);
+        // Teleport somewhere else after attacking
+        Teleport();
 
-        if (!alreadyAttacked)
+    }
+
+    public void TakeDamage(float incomingDamage)
+    {
+        health -= incomingDamage;
+
+        if (health <= 0)
         {
-            ///Attack code here
-            Rigidbody rb = Instantiate(projectile, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
-            rb.AddForce(transform.forward * 32f, ForceMode.Impulse);
-            rb.AddForce(transform.up * 8f, ForceMode.Impulse);
-            ///End of attack code
-
-            alreadyAttacked = true;
-            Invoke(nameof(ResetAttack), timeBetweenAttacks);
+            Die();
         }
     }
-    private void ResetAttack()
-    {
-        alreadyAttacked = false;
-    }
 
-    public void TakeDamage(int damage)
+    private void Die()
     {
-        health -= damage;
-
-        if (health <= 0) Invoke(nameof(DestroyEnemy), 0.5f);
-    }
-    private void DestroyEnemy()
-    {
-        Destroy(gameObject);
+        // Destroy enemy
     }
 
     private void OnDrawGizmosSelected()
@@ -158,7 +150,7 @@ public class EnemyAiTutorial : MonoBehaviour
 
             if (distanceToPlayer > distantThreshold && currentLocation.position != randomLocation.position) {
                 agent.Warp(randomLocation.position);
-                currentLocation.position = randomLocation.position;
+                currentLocation = randomLocation;
                 checkDistance = false;
             }
         }
